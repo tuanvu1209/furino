@@ -1,0 +1,14 @@
+.MuiToggleButtonGroup-root {
+  .MuiToggleButton-root {
+    color: black;
+    &.Mui-selected {
+      background-color: black;
+      color: white;
+    }
+
+    &.Mui-selected:hover {
+      background-color: black;
+      color: white;
+    }
+  }
+}
