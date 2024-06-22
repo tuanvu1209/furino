@@ -4,6 +4,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import * as React from 'react';
 import { useRef } from 'react';
+import { IoIosNotificationsOutline } from 'react-icons/io';
 import { Link, useNavigate } from 'react-router-dom';
 import { v4 as uuid } from 'uuid';
 import { CartNotification, CustomizedBadges } from '../../common';
@@ -20,12 +21,15 @@ import { selectUser, userActions } from '../../store/user/slice';
 import { links } from '../../utils/constants/link';
 import { settings } from '../../utils/constants/menu';
 import checkTokenExistence from '../../utils/hooks/checkToken';
+import { Notification } from '../../pages';
+import { selectNotifications } from '../../store/notification/slice';
 
 const Header = () => {
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
   );
   const [openAlert, setOpenAlert] = React.useState(false);
+  const [openNotification, setOpenNotification] = React.useState(false);
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -33,6 +37,7 @@ const Header = () => {
   const cartStatus = useAppSelector(selectActions);
   const cart = useAppSelector(selectCarts);
   const cartNotification = useAppSelector(selectShowCartNotification);
+  const notification = useAppSelector(selectNotifications);
 
   const hiddenNavHeader = useAppSelector(selectHiddenNavHeader);
   const headerRef = useRef<any>(null);
@@ -142,6 +147,16 @@ const Header = () => {
 
               <div className='flex md:gap-[20px] justify-end items-center'>
                 <IconButton
+                  onClick={() => setOpenNotification(!openNotification)}
+                  sx={{ display: { xs: 'none', md: 'block' } }}
+                  className='relative'
+                >
+                  <IoIosNotificationsOutline className='text-black' />
+                  <span className='absolute text-[10px] text-white h-5 w-5 flex justify-center items-center bg-black rounded-full top-4 right-0'>
+                    {notification.count}
+                  </span>
+                </IconButton>
+                <IconButton
                   aria-label='search'
                   onClick={() => navigate('/search')}
                 >
@@ -238,6 +253,11 @@ const Header = () => {
             onClose={handleCloseCartNotification}
             onCheckout={handleCheckout}
           />
+        )}
+        {openNotification && (
+          <div className='hidden md:block'>
+            <Notification onClose={() => setOpenNotification(false)} />
+          </div>
         )}
       </header>
     )

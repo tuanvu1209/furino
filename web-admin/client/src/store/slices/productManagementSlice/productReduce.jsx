@@ -7,15 +7,13 @@ const token = localStorage.getItem('jwtToken');
 
 const getDataProduct = createAsyncThunk(
   'GET_DATA_PRODUCT',
-  async ({ limit, page, categoryId, keyword }, thunkAPI) => {
+  async (_, thunkAPI) => {
     try {
       thunkAPI.dispatch(handleLoading(true));
       const products = await axios.get(`${baseURL}/products`, {
         params: {
-          limit,
-          page,
-          categoryId,
-          keyword,
+          limit: 1000,
+          page: 1,
         },
         headers: {
           Authorization: `Bearer ${token}`,
@@ -281,29 +279,25 @@ const deleteCategory = createAsyncThunk(
   }
 );
 
-const getOrders = createAsyncThunk(
-  'GET_ORDER_LIST',
-  async ({ limit, page, status }, thunkAPI) => {
-    try {
-      thunkAPI.dispatch(handleLoading(true));
-      const result = await axios.get(`${baseURL}/orders`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: {
-          limit,
-          page,
-          status,
-        },
-      });
-      thunkAPI.dispatch(handleLoading(false));
-      return result.data;
-    } catch (error) {
-      thunkAPI.dispatch(handleLoading(false));
-      return thunkAPI.rejectWithValue(error.message);
-    }
+const getOrders = createAsyncThunk('GET_ORDER_LIST', async (_, thunkAPI) => {
+  try {
+    thunkAPI.dispatch(handleLoading(true));
+    const result = await axios.get(`${baseURL}/orders`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params: {
+        limit: 100,
+        page: 0,
+      },
+    });
+    thunkAPI.dispatch(handleLoading(false));
+    return result.data;
+  } catch (error) {
+    thunkAPI.dispatch(handleLoading(false));
+    return thunkAPI.rejectWithValue(error.message);
   }
-);
+});
 
 const changeStatusOrder = createAsyncThunk(
   'CHANGE_STATUS_ORDER',

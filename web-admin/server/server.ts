@@ -61,18 +61,34 @@ server.listen(port, async () => {
 
 io.on('connection', (socket) => {
   console.log('Client connected');
+
   socket.on('register', (userId) => {
-    userSockets.set(userId, socket.id);
+    const userSocketIds = userSockets.get(userId) || [];
+    userSocketIds.push(socket.id);
+    userSockets.set(userId, userSocketIds);
     console.log(userSockets);
+  });
+
+  socket.on('orderInsert', (data) => {
+    console.log(data);
+    
+    io.emit('orderInsert', {});
   });
 
   socket.on('disconnect', () => {
     console.log('Client disconnected');
-    for (const [userId, id] of userSockets.entries()) {
-      if (id === socket.id) {
-        userSockets.delete(userId);
+    for (const [userId, socketIds] of userSockets.entries()) {
+      const index = socketIds.indexOf(socket.id);
+      if (index !== -1) {
+        socketIds.splice(index, 1);
+        if (socketIds.length === 0) {
+          userSockets.delete(userId);
+        } else {
+          userSockets.set(userId, socketIds);
+        }
         break;
       }
     }
+    console.log(userSockets);
   });
 });

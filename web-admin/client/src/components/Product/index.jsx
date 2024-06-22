@@ -31,7 +31,7 @@ export function Product() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getDataProduct(limitOffset));
+    dispatch(getDataProduct());
   }, []);
 
   useEffect(() => {

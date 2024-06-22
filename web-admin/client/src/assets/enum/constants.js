@@ -1,4 +1,4 @@
-const IP = '192.168.10.55';
+const IP = '192.168.1.6';
 export const baseURL = `http://${IP}:3001/admin`;
 // export const baseURL = 'https://furino-admin-server.vercel.app/admin';
 export const optionLimit = [10, 20, 40];

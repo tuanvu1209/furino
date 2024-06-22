@@ -10,59 +10,79 @@ import {
   AccountPage,
 } from '../pages/index';
 import AuthRoute from './AuthRoute';
+import { useEffect } from 'react';
+import { io } from 'socket.io-client';
+import { getDataProduct, getOrders } from '../store/slices/productManagementSlice/productReduce';
+import { useDispatch, useSelector } from 'react-redux';
+import toast from 'react-hot-toast';
 
 const Routers = () => {
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.userManagement.user);
+  useEffect(() => {
+    const socket = io('http://localhost:3001');
+    socket.emit('register', user?.userId);
+    socket.on('orderInsert', (data) => {
+      toast.success('orderInsert');
+      dispatch(getOrders());
+      dispatch(getDataProduct());
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
   return (
     <Routes>
       <Route
-        path="/"
+        path='/'
         element={
-          <AuthRoute routeType="private">
+          <AuthRoute routeType='private'>
             <App />
           </AuthRoute>
         }
       >
         <Route
-          path="/"
+          path='/'
           element={
             <Navigate
-              to="/product"
+              to='/product'
               replace={true}
             />
           }
         />
         <Route
-          path="product"
+          path='product'
           element={<ProductPage />}
         />
         <Route
-          path="account"
+          path='account'
           element={<AccountPage />}
         />
         <Route
-          path="order"
+          path='order'
           element={<OrderManagementPage />}
         />
 
         <Route
-          path="*"
+          path='*'
           element={<ErrorPage />}
         />
       </Route>
 
       <Route
-        path="/login"
+        path='/login'
         element={
-          <AuthRoute routeType="public">
+          <AuthRoute routeType='public'>
             <LoginPage />
           </AuthRoute>
         }
       />
 
       <Route
-        path="/register"
+        path='/register'
         element={
-          <AuthRoute routeType="public">
+          <AuthRoute routeType='public'>
             <RegisterPage />
           </AuthRoute>
         }

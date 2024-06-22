@@ -21,7 +21,11 @@ import * as React from 'react';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Yup from 'yup';
-import { createProduct, updateProduct } from '../../store/slices/productManagementSlice/productReduce';
+import {
+  createProduct,
+  updateProduct,
+} from '../../store/slices/productManagementSlice/productReduce';
+import toast from 'react-hot-toast';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -49,6 +53,7 @@ function ProductForm({ onClose, product, action, limitOffset }) {
           quantity: item.quantity,
           price: item.price,
           sold: item.sold,
+          priceDiscount: item?.priceDiscount || 0,
         }))
       : [
           {
@@ -56,6 +61,7 @@ function ProductForm({ onClose, product, action, limitOffset }) {
             productSizeId: null,
             quantity: null,
             price: null,
+            sold: null,
           },
         ]
   );
@@ -93,8 +99,7 @@ function ProductForm({ onClose, product, action, limitOffset }) {
       name: Yup.string()
         .max(15, 'Must be 15 characters or less')
         .required('Required'),
-      description: Yup.string()
-        .required('Required'),
+      description: Yup.string().required('Required'),
     }),
     onSubmit: (values) => {
       alert(JSON.stringify(values, null, 2));
@@ -124,19 +129,92 @@ function ProductForm({ onClose, product, action, limitOffset }) {
   }, [productInventories]);
 
   const handleSubmit = () => {
+    const newProductInventories = productInventories.map((item) => {
+      if (item.priceDiscount == 0) {
+        const { priceDiscount, ...rest } = item;
+        return rest;
+      }
+      return item;
+    });
     const data = {
       name: formik.values.name,
       description: formik.values.description,
       productCategories,
-      productInventories,
+      productInventories: newProductInventories,
       productImages,
       productGeneralImages,
     };
-    if(action === 'view') {
+    if (action === 'view') {
+      const dataUpdate = [];
+
+      const checkAndUpdate = (condition, field) => {
+        if (condition) dataUpdate.push({ [field]: data[field] });
+      };
+
+      checkAndUpdate(product.name !== data.name, 'name');
+      checkAndUpdate(product.description !== data.description, 'description');
+
+      const compareArrays = (arr1, arr2, compareFunc) => {
+        if (arr1.length !== arr2.length) return true;
+        for (const item of arr1) {
+          if (!compareFunc(item, arr2)) return true;
+        }
+        return false;
+      };
+
+      checkAndUpdate(
+        compareArrays(
+          product.productCategories,
+          data.productCategories,
+          (item, arr) => arr.includes(item.categoryId)
+        ),
+        'productCategories'
+      );
+
+      checkAndUpdate(
+        compareArrays(
+          product.productInventories,
+          data.productInventories,
+          (item, arr) =>
+            arr.find((i) =>
+              i.productColorId === item.productColorId &&
+              i.productSizeId === item.productSizeId &&
+              i.quantity === item.quantity &&
+              i.price === item.price &&
+              i.priceDiscount
+                ? i.priceDiscount == item.priceDiscount
+                : true
+            )
+        ),
+        'productInventories'
+      );
+
+      checkAndUpdate(
+        compareArrays(product.productImages, data.productImages, (item, arr) =>
+          arr.find(
+            (i) =>
+              i.productColorId === item.productColorId && i.image === item.image
+          )
+        ),
+        'productImages'
+      );
+
+      checkAndUpdate(
+        product.productGeneralImages.length !==
+          data.productGeneralImages.length,
+        'productGeneralImages'
+      );
+
+      if (dataUpdate.length === 0) {
+        toast.error('No changes updated!');
+        return;
+      }
+
       data.productId = product.productId;
       dispatch(updateProduct(data));
       return;
     }
+
     dispatch(createProduct(data));
   };
 
@@ -234,6 +312,7 @@ function ProductForm({ onClose, product, action, limitOffset }) {
                     productSizeId: null,
                     quantity: null,
                     price: null,
+                    sold: null,
                   },
                 ]);
               }}
@@ -248,7 +327,9 @@ function ProductForm({ onClose, product, action, limitOffset }) {
         <div className='flex gap-x-2 gap-y-6 flex-col'>
           {productInventories.map((_, index) => (
             <div
-              className={`grid ${action === 'view' ? 'grid-cols-12' : 'grid-cols-10'} gap-2`}
+              className={`grid ${
+                action === 'view' ? 'grid-cols-12' : 'grid-cols-10'
+              } gap-2`}
               key={index}
             >
               <FormControl
@@ -317,11 +398,25 @@ function ProductForm({ onClose, product, action, limitOffset }) {
                 label='Price'
                 variant='outlined'
               />
+              <TextField
+                id='outlined-basic'
+                className='col-span-2'
+                disabled={!edit}
+                onChange={(e) => {
+                  productInventories[index].priceDiscount = Number(
+                    e.target.value
+                  );
+                  setProductInventories([...productInventories]);
+                }}
+                value={productInventories[index]?.priceDiscount || 0}
+                label='Price Discount'
+                variant='outlined'
+              />
               {action === 'view' && (
                 <TextField
                   id='outlined-basic'
                   className='col-span-2'
-                  disabled={!edit}
+                  disabled
                   onChange={(e) => {
                     productInventories[index].sold = Number(e.target.value);
                     setProductInventories([...productInventories]);

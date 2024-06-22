@@ -2,11 +2,11 @@
 
 @layer base {
 	body {
-		@apply font-nunito text-sm;
+		font-family: 'Assistant', sans-serif;
 	}
 
 	h1 {
-		@apply font-dosis text-h1 font-semibold leading-h1;
+		@apply text-h1 font-semibold leading-h1;
 	}
 }
 

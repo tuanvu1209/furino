@@ -84,7 +84,7 @@ const getProducts = async (
         },
         {
           model: ProductInventory,
-          attributes: ['quantity', 'sold', 'price', 'priceDiscount'],
+          attributes: ['quantity', 'sold', 'price', 'priceDiscount', 'productInventoryId', 'productSizeId', 'productColorId'],
           order: [['productSizeId', 'ASC']],
           include: [
             {

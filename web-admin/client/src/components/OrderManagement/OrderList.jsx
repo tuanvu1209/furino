@@ -45,7 +45,7 @@ const statusListDefault = [
   { value: 3, name: 'Cancel' },
 ];
 
-const OrderList = ({ orders, limitOffset }) => {
+const OrderList = ({ orders }) => {
   const dispatch = useDispatch();
   const [action, setAction] = useState();
   const [dataChange, setDataChange] = useState();

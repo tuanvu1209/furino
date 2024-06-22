@@ -2,10 +2,6 @@ export default {
 	content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
 	theme: {
 		extend: {
-			fontFamily: {
-				nunito: ["Nunito", "sans-serif"],
-				dosis: ["Dosis", "sans-serif"],
-			},
 			fontSize: {
 				h1: ["1.125rem"],
 			},

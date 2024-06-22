@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { v4 as uuid } from 'uuid';
 import { HeadingPage } from '../../common';
@@ -8,20 +8,45 @@ import {
 } from '../../store/notification/slice';
 import { useAppDispatch, useAppSelector } from '../../store/root/hooks';
 
-function Notification() {
+function Notification({ onClose }: { onClose?: () => void }) {
   const dispatch = useAppDispatch();
   const notifications = useAppSelector(selectNotifications);
+  const notificationRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: any) => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target) &&
+        onClose
+      ) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [notificationRef, onClose]);
 
   useEffect(() => {
     dispatch(notificationActions.getNotifications());
   }, [dispatch]);
-  
+
   return (
-    <div className='container'>
-      <div className='px-4'>
-        <HeadingPage title='Notification' />
+    <div
+      ref={notificationRef}
+      className='container bg-white md:absolute md:top-[61px] right-0 md:max-w-[350px] md:rounded- md:shadow-sm md:border'
+    >
+      <div className='px-4 md:hidden pt-[40px]'>
+        <HeadingPage
+          title='Notification'
+          style={{ padding: 0, margin: '10px 0' }}
+        />
       </div>
-      <div className='flex flex-col'>
+      <div className='flex flex-col md:h-[600px] md:overflow-scroll'>
         {notifications.data.map((item: any) => (
           <Link
             to={`/order/${item.orderId}`}

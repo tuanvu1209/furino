@@ -18,6 +18,8 @@ import {
 } from '../../store/order/slice';
 import { useAppDispatch, useAppSelector } from '../../store/root/hooks';
 import { selectUser, userActions } from '../../store/user/slice';
+import useSocket from '../../utils/hooks/useSocket';
+import { SOCKET_URL } from '../../utils/constants/strapi';
 
 function Checkout() {
   const [error, setError] = useState(false);
@@ -121,11 +123,13 @@ function Checkout() {
     };
   }, [dispatch]);
 
+  const socket = useSocket(SOCKET_URL);
+
   useEffect(() => {
-    if (user.status === 'succeeded' && user.data.address) {
-      setSelectedValue('old');
+    if (status === 'succeeded') {
+      socket.emit('orderInsert', { title: 'New order' });
     }
-  }, [user]);
+  }, [status, socket]);
 
   if (status === 'succeeded') {
     return <OrderSuccessPage />;
@@ -136,10 +140,13 @@ function Checkout() {
       <div className='md:mt-[40px] transition-all h-[100vh]'>
         <HeaderMobile title='Checkout' />
         <div className='hidden md:block'>
-          <HeadingPage title='Checkout' continueShopping/>
+          <HeadingPage
+            title='Checkout'
+            continueShopping
+          />
         </div>
         <div className='flex flex-col md:flex-row gap-[40px]'>
-          <div className='md:w-1/2'>
+          <div className='md:w-1/3'>
             <Radio
               checked={selectedValue === 'old'}
               onChange={handleChange}
@@ -163,7 +170,9 @@ function Checkout() {
               <div className='shadow-md rounded-xl'>
                 <div className='flex justify-between py-[10px] px-[20px] border-b-4 border-[#F0F0F0]'>
                   <span className='text-[18px]'>
-                    {(address?.lastName || '') + ' ' + (address?.firstName || '')}
+                    {(address?.lastName || '') +
+                      ' ' +
+                      (address?.firstName || '')}
                   </span>
                   <span>{address?.phone || ''}</span>
                 </div>
@@ -328,7 +337,7 @@ function Checkout() {
               </div>
             </div>
           </div>
-          <div>
+          <div className='md:w-2/3'>
             <div className='text-sm flex text-subText pb-5 border-b-2 md:border-b md:grid md:grid-cols-12 gap-4'>
               <span className='col-span-8'>PRODUCT</span>
               <span className='hidden md:block md:col-span-1'>QUANTITY</span>
@@ -337,15 +346,15 @@ function Checkout() {
             <div className='flex flex-col gap-10 my-10 border-b pb-10'>
               {cartSelected.map((cart: any) => (
                 <div
-                  className='flex gap-4 md:grid md:grid-cols-12'
+                  className='flex md:grid md:grid-cols-12'
                   key={uuidv4()}
                 >
                   <img
                     src={cart.productImage}
                     alt='product'
-                    className='h-[74px] w-[74px] object-cover md:w-[100px] md:h-[100px] md:col-span-1'
+                    className='h-[74px] w-[74px] object-cover md:w-[100px] md:h-[100px] md:col-span-3 mr-4'
                   />
-                  <div className='flex md:ml-6 flex-col gap-2 md:col-span-9 md:grid md:grid-cols-9 md:gap-0 flex-1'>
+                  <div className='flex md:ml-4 flex-col gap-2 md:col-span-7 md:grid md:grid-cols-9 md:gap-0 flex-1'>
                     <div className='md:col-span-7'>
                       <h3>{cart.productName}</h3>
                       <span className='text-sm text-subText'>

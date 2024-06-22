@@ -221,7 +221,7 @@ const ProductList = ({ limitOffset }) => {
               </div>
             </div>
           ) : (
-            <div className='w-[600px]'>
+            <div className='w-[700px]'>
               <ProductForm
                 product={itemProduct}
                 onClose={handleClose}

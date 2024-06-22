@@ -244,12 +244,14 @@ const updateOrder = async ({
 
     const socketId = userSockets.get(order.userId);
     if (socketId) {
-      io.to(socketId).emit('orderUpdate', {
-        userId: order.userId,
-        orderId,
-        title: notificationTitle,
-        message: notificationMessage(),
-        notificationDate: new Date(),
+      socketId.forEach((id: any) => {
+        io.to(id).emit('orderUpdate', {
+          userId: order.userId,
+          orderId,
+          title: notificationTitle,
+          message: notificationMessage(),
+          notificationDate: new Date(),
+        });
       });
     }
 

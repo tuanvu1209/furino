@@ -25,6 +25,7 @@ import CustomNextArrow from './Slider/Next';
 import CustomPrevArrow from './Slider/Prev';
 import SearchSuggest from './SearchSuggest/SearchSuggest';
 import CartEmpty from './CartEmpty/CartEmpty';
+import NotificationModal from './NotificationModal/NotificationModal';
 
 export {
   AvailabilityForm,
@@ -54,5 +55,6 @@ export {
   SimpleBottomNavigation,
   SearchSuggest,
   CartEmpty,
+  NotificationModal,
 };
 
